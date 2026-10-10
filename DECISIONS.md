@@ -2,18 +2,29 @@
 
 ## ADR-001: Inicjalizacja Repozytorium i Architektura Hybrydowa dla Hackathonu Code for Culture
 - **Data**: 2026-10-10
+- **Status**: Zastąpione przez ADR-002
+
+---
+
+## ADR-002: Zmiana Założeń — Silnik Kolorowanki Pikselowej zamiast Generatywnego AI
+- **Data**: 2026-10-10
 - **Status**: Zaakceptowano
 
 ### Kontekst
-W ramach hackathonu Code for Culture tworzony jest moduł backendowy/AI dla aplikacji mobilnej a la TikTok. Użytkownik koloruje 5-kolorową pikselozę, po czym model ma odsłonić / zrekonstruować pełne dzieło malarstwa polskiego wraz z ciekawostką historyczną. Frontend potrzebuje natychmiastowego kontraktu API, podczas gdy model ML wymaga iteracyjnego treningu/fine-tuningu.
+Użytkownik sprecyzował, że serwis nie będzie generować obrazów za pomocą modeli generatywnych (Diffusion/GAN). Oryginalne obrazy wysokiej jakości pochodzą z darmowych, otwartych baz dziedzictwa narodowego (Polona, MNW itp.).
+Celem projektu jest przekształcenie autentycznego dzieła sztuki w **prostą kolorowankę pikselową (color-by-number)** z siatką pikseli i dokładnie 5 kolorami do pokolorowania w aplikacji mobilnej w stylu TikTok.
 
 ### Decyzja
-1. Tworzymy dedykowane repozytorium `image_generation` zintegrowane z profilem GitHub użytkownika (`wojgww`).
-2. Przyjmujemy architekturę trójwarstwową:
-   - **Warstwa API (FastAPI)**: Udostępnia kontrakt `/api/depixelate` oraz `/api/artworks`. W fazie bootstrapu udostępnia silnik symulacyjny/mock (aby zablokować zależność zespołu frontendowego).
-   - **Warstwa Przetwarzania Danych (`src/data`)**: Skrypty automatycznej degradacji obrazów (Pixelate + K-Means / Median Cut 5 barw) tworzące pary treningowe.
-   - **Warstwa Modeli (`src/models`)**: Dwuetapowa ścieżka: (1) Szybki baseline Super-Resolution (Real-ESRGAN / SwinIR / Conditional U-Net) dla niskiej latencji, (2) Opcjonalne głębokie dobarwianie dyfuzyjne (ControlNet / SD-Turbo) w zależności od dostępnych zasobów GPU.
+1. **Odrzucenie ciężkich modeli generatywnych AI**: Zamiast sieci dyfuzyjnych/super-resolution stosujemy szybkie, deterministyczne algorytmy wizji komputerowej (OpenCV, PIL, scikit-learn K-Means).
+2. **Architektura silnika kolorowanki**:
+   - Moduł `PixelColoringGenerator`:
+     - Zmniejszenie obrazu do siatki (np. 32x32 lub 48x48) metodą Box/Area downsampling.
+     - Klasteryzacja K-Means ($K=5$) w celu wyodrębnienia 5 dominujących barw.
+     - Wygenerowanie numerycznej macierzy pikseli (wartości 1..5) oraz palety barw HEX (`#RRGGBB`).
+3. **Kontrakt API**:
+   - Backend serwuje gotowe obiekty JSON zawierające: paletę 5 barw, macierz kolorowanki, URL do oryginału HD oraz ciekawostki kulturowe.
 
 ### Konsekwencje
-- Frontend może natychmiast integrować aplikację mobilną bez czekania na wielogodzinny trening modelu.
-- Bezpieczny i elastyczny pipeline danych z pełną kontrolą nad polskimi dziełami sztuki.
+- Drastyczne zmniejszenie wymagań sprzętowych (brak potrzeby VRAM/GPU, uruchomienie na zwykłym CPU).
+- Czas przetwarzania < 50ms, natychmiastowe ładowanie w aplikacji mobilnej.
+- 100% zgodność historyczna — po pokolorowaniu użytkownik widzi rzeczywisty, nienaruszony oryginał polskiego dzieła sztuki.

@@ -1,37 +1,32 @@
-# TASKS.md — Rejestr Zadań Projektu
+# TASKS.md — Rejestr Zadań Projektu (Pixel Coloring Engine)
 
-## Faza 1: Inicjalizacja i Konfiguracja Środowiska (W toku)
+## Faza 1: Inicjalizacja i Repozytorium (Zakończone)
 - [x] Inicjalizacja lokalnego repozytorium git (`main`)
-- [x] Przygotowanie konfiguracji `.gitignore`
-- [x] Stworzenie dokumentacji pamięci projektu (`AGENTS.md`, `PROJECT_BRIEF.md`, `CURRENT_STATE.md`, `DECISIONS.md`, `TASKS.md`, `.docs/ENGINEERING_BRIEF.md`)
-- [x] Dodanie wpisu projektu do centralnego indeksu wiedzy (`INDEX.md`)
-- [ ] Utworzenie zdalnego repozytorium GitHub (`wojgww/image_generation`) i pierwszy push
+- [x] Utworzenie repozytorium GitHub (`wojgww/image_generation`) i pierwszy push
+- [x] Stworzenie i aktualizacja dokumentacji pamięci projektu (`AGENTS.md`, `PROJECT_BRIEF.md`, `CURRENT_STATE.md`, `DECISIONS.md`, `TASKS.md`, `.docs/ENGINEERING_BRIEF.md`)
+- [x] Rejestracja w centralnym rejestrze `INDEX.md`
 
-## Faza 2: Szkielet Architektury i Kontrakt API
-- [ ] Konfiguracja `pyproject.toml` / `requirements.txt`
-- [ ] Implementacja struktury katalogowej (`src/api`, `src/models`, `src/data`, `src/utils`, `tests`)
-- [ ] Implementacja FastAPI z endpointami:
-  - `GET /health`
-  - `GET /api/artworks` (lista dzieł z miniaturami, 5-kolorowymi paletami i ciekawostkami)
-  - `POST /api/depixelate` (przyjmuje obraz wejściowy użytkownika + artwork_id, zwraca zrekonstruowany obraz + kontekst historyczny)
-- [ ] Przygotowanie trybu mock/fallback (natychmiastowe wsparcie dla aplikacji mobilnej)
-- [ ] Testy jednostkowe endpointów API (pytest + httpx)
+## Faza 2: Środowisko i Silnik Przetwarzania Obrazu (Pixel Coloring Core)
+- [ ] Utworzenie `requirements.txt` (FastAPI, uvicorn, pillow, opencv-python-headless, scikit-learn, numpy, pytest, httpx)
+- [ ] Implementacja modułu `src/core/pixel_engine.py`:
+  - Przeskalowanie dzieła do siatki (np. 32x32 lub 48x48)
+  - Ekstrakcja 5 optymalnych kolorów za pomocą K-Means (przestrzeń CIELAB lub RGB)
+  - Kwantyzacja i mapowanie pikseli do ID 1–5
+  - Eksport macierzy numerycznej oraz palety HEX
+  - Generowanie podglądu PNG (kolorowa pikseloza oraz wersja z numerami)
 
-## Faza 3: Pipeline Danych i Przetwarzanie Obrazów
-- [ ] Skrypt pobierania wybranych dzieł polskiego malarstwa z wolnych źródeł (Polona / Cyfrowe MNW / Wikimedia Commons)
-- [ ] Skrypt degradacji obrazu:
-  - Skalowanie w dół / pikseloza (np. do siatki 32x32 lub 64x64)
-  - Kwantyzacja kolorów do 5 dominujących barw (K-Means / Median Cut)
-  - Zapisywanie par [pixel_5color, original_hd]
-- [ ] Generator metadanych kulturowych (autor, rok, anegdoty, znaczenie w kulturze polskiej) w formacie JSON
+## Faza 3: Baza Dzieł Sztuki i Metadanych Kulturowych
+- [ ] Utworzenie bazy `src/data/artworks.json` z polskimi arcydziełami (np. Jan Matejko „Stańczyk”, Józef Chełmoński „Babie lato”, Stanisław Wyspiański „Chochoły”, Aleksander Gierymski „Żydówka z pomarańczami”)
+- [ ] Dołączenie ciekawostek historycznych, anegdot oraz kontekstu kulturowego do każdego dzieła
+- [ ] Skrypt przetwarzający bazę dzieł na gotowe zestawy kolorowanek
 
-## Faza 4: Model AI & Rekonstrukcja Dzieł
-- [ ] Baseline modelu Super-Resolution (np. Real-ESRGAN / SwinIR / Pix2Pix)
-- [ ] Eksperyment z kondycjonowaniem na bazie ID dzieła i palety barw użytkownika
-- [ ] Optymalizacja czasu inferencji (ONNX / TensorRT / kwantyzacja wag do FP16)
-- [ ] Ewaluacja jakości (metryki wizualne, czas odpowiedzi)
+## Faza 4: API REST dla Aplikacji Mobilnej (FastAPI)
+- [ ] Endpoint `GET /api/artworks` — lista dzieł do feedu (z paletą 5 kolorów, wymiarami siatki, macierzą i ciekawostkami)
+- [ ] Endpoint `GET /api/artworks/{id}` — szczegóły konkretnej kolorowanki
+- [ ] Endpoint `POST /api/convert` — możliwość przesłania dowolnego obrazu i konwersji w locie na 5-kolorową kolorowankę
+- [ ] Endpoint `GET /health` — health check
+- [ ] Konfiguracja CORS (zezwolenie na zapytania z aplikacji mobilnej Expo/React Native)
 
-## Faza 5: Wdrożenie i Integracja Hackathonowa
-- [ ] Konteneryzacja (Dockerfile / docker-compose)
-- [ ] Wdrożenie serwera API (np. VPS Hetzner / HuggingFace Spaces / Modal / ngrok do testów mobilnych)
-- [ ] Testy end-to-end z aplikacją mobilną TikTok-style
+## Faza 5: Testy i Weryfikacja
+- [ ] Testy jednostkowe silnika kwantyzacji (`tests/test_pixel_engine.py`)
+- [ ] Testy endpointów API (`tests/test_api.py`)

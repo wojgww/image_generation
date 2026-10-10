@@ -1,23 +1,26 @@
-# Image Generation & Depixelation Service (Code for Culture)
+# Pixel Coloring Engine — Code for Culture
 
-Model i serwis sztucznej inteligencji (AI/ML) do **rozpikselowywania (depixelation / super-resolution / guided restoration)** polskich dzieł sztuki dla aplikacji hackathonowej **Code for Culture**.
+Serwis backendowy i silnik przetwarzania obrazów dla aplikacji hackathonowej **Code for Culture** (TikTok-style culture feed).
 
 ---
 
 ## 🎨 O Projekcie
-Współpracuje z mobilną aplikacją w stylu **TikTok** („Scroll & Paint Culture”):
-1. Użytkownik przegląda feed dzieł polskiego malarstwa.
-2. Otrzymuje rozpikselowane dzieło z dedykowaną 5-kolorową paletą barw do pokolorowania.
-3. Po ukończeniu zadania moduł AI rekonstruuje pełną jakość obrazu (High Definition).
-4. Aplikacja odsłania odnowione dzieło wraz z ciekawostkami historycznymi i kontekstem kulturowym.
+Projekt nie generuje sztucznych obrazów AI — korzysta z autentycznych polskich dzieł sztuki z otwartych baz muzealnych (Polona, Cyfrowe MNW, domena publiczna).
+
+Zadaniem silnika jest automatyczne przekształcanie dzieł malarstwa w **interaktywną kolorowankę pikselową (color-by-number)**:
+1. Skalowanie obrazu do siatki (np. 32x32 lub 48x48).
+2. Wyodrębnienie kluczowej palety **dokładnie 5 kolorów** za pomocą algorytmu K-Means.
+3. Wygenerowanie siatki pikseli z numerami 1–5 dla aplikacji mobilnej.
+4. Udostępnienie endpointów REST API dostarczających kolorowanki wraz z **ciekawostkami historycznymi** i **kontekstem kulturowym**.
+5. Po pokolorowaniu w aplikacji następuje efektowne „odpikselowanie”, odsłaniające oryginalne dzieło HD.
 
 ---
 
-## 🛠️ Architektura i Stack
-- **Python 3.10+**, **PyTorch**, **Torchvision**
-- **FastAPI / Uvicorn** — szybki serwis REST API
-- **OpenCV / Pillow / NumPy** — przetwarzanie i degradacja obrazów (kwantyzacja K-Means)
-- **Model Baseline**: Super-Resolution / Guided Restoration (SwinIR / Real-ESRGAN / Conditional U-Net)
+## 🛠️ Stack Technologiczny
+- **Python 3.10+**
+- **Pillow (PIL), OpenCV, NumPy, scikit-learn** — przetwarzanie grafiki i K-Means clustering
+- **FastAPI / Uvicorn** — lekki i szybki REST API
+- **Pydantic** — walidacja schematów danych dla aplikacji mobilnej
 
 ---
 
@@ -39,9 +42,9 @@ uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
 ---
 
 ## 📖 Pamięć Projektu
-- [`AGENTS.md`](file:///home/ai_workspace/Projekty/image_generation/AGENTS.md) — Wytyczne i zasady operacyjne
-- [`PROJECT_BRIEF.md`](file:///home/ai_workspace/Projekty/image_generation/PROJECT_BRIEF.md) — Kontekst biznesowy i hackathonowy
-- [`CURRENT_STATE.md`](file:///home/ai_workspace/Projekty/image_generation/CURRENT_STATE.md) — Aktualny stan i postępy
-- [`DECISIONS.md`](file:///home/ai_workspace/Projekty/image_generation/DECISIONS.md) — Rejestr decyzji architektonicznych (ADR)
-- [`TASKS.md`](file:///home/ai_workspace/Projekty/image_generation/TASKS.md) — Plan i backlog zadań
-- [`.docs/ENGINEERING_BRIEF.md`](file:///home/ai_workspace/Projekty/image_generation/.docs/ENGINEERING_BRIEF.md) — Kontrakty API i specyfikacja techniczna
+- [`AGENTS.md`](file:///home/ai_workspace/Projekty/image_generation/AGENTS.md) — Wytyczne operacyjne i DoD
+- [`PROJECT_BRIEF.md`](file:///home/ai_workspace/Projekty/image_generation/PROJECT_BRIEF.md) — Cele biznesowe i hackathonowe
+- [`CURRENT_STATE.md`](file:///home/ai_workspace/Projekty/image_generation/CURRENT_STATE.md) — Aktualny stan prac
+- [`DECISIONS.md`](file:///home/ai_workspace/Projekty/image_generation/DECISIONS.md) — Rejestr decyzji architektonicznych (ADR-001, ADR-002)
+- [`TASKS.md`](file:///home/ai_workspace/Projekty/image_generation/TASKS.md) — Zadania projektowe
+- [`.docs/ENGINEERING_BRIEF.md`](file:///home/ai_workspace/Projekty/image_generation/.docs/ENGINEERING_BRIEF.md) — Schematy JSON i algorytm K-Means
