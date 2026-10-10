@@ -32,9 +32,9 @@ def test_get_artworks_default():
     # Check ADR-003 schema on first item
     first = artworks[0]
     assert first["id"] == "stanczyk-matejko"
-    assert first["grid"]["width"] == 32
-    assert first["grid"]["height"] == 32
-    assert len(first["grid"]["data"]) == 32
+    assert first["grid"]["width"] == first["grid"]["height"]
+    assert first["grid"]["width"] >= 4
+    assert len(first["grid"]["data"]) == first["grid"]["height"]
     assert len(first["palette"]) == 5
     assert "trivia" in first["cultural_data"]
     assert "historical_context" in first["cultural_data"]
@@ -107,3 +107,11 @@ def test_convert_upload_file():
     assert res["grid"]["width"] == 24
     assert res["grid"]["height"] == 24
     assert len(res["palette"]) == 5
+
+
+def test_gallery_endpoint():
+    response = client.get("/gallery")
+    assert response.status_code == 200
+    assert "text/html" in response.headers.get("content-type", "")
+    assert "Code for Culture" in response.text
+

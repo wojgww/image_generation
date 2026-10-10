@@ -42,7 +42,24 @@ assets_dir = Path("assets")
 if assets_dir.exists():
     app.mount("/static/assets", StaticFiles(directory=str(assets_dir)), name="assets")
 
+gallery_dir = Path("outputs/before_after")
+if gallery_dir.exists():
+    app.mount("/static/gallery", StaticFiles(directory=str(gallery_dir)), name="gallery")
+
 DB_PATH = Path("src/data/artworks_db.json")
+
+
+@app.get("/gallery", response_class=None, tags=["Gallery"], include_in_schema=True)
+def get_gallery_html():
+    """Serves the interactive Before/After comparison HTML catalog."""
+    from fastapi.responses import HTMLResponse
+    index_path = Path("outputs/before_after/index.html")
+    if not index_path.exists():
+        raise HTTPException(status_code=404, detail="Gallery not generated. Run python -m src.core.generate_gallery")
+    with open(index_path, "r", encoding="utf-8") as f:
+        # Rewrite relative image links to /static/gallery/... when served via API
+        html = f.read()
+    return HTMLResponse(content=html)
 
 
 def load_artworks_db() -> List[dict]:

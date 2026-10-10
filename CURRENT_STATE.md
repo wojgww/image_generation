@@ -16,9 +16,12 @@
   - Usuwanie szumów i izolowanych pikseli (Majority Filter).
   - Obsługa obrazów z małą liczbą barw (monochromatyczne, 2-kolorowe) bez ostrzeżeń.
   - Kompaktowy serializator JSON (`to_canonical_json`).
-- [x] **Narzędzie Wizualizacji (`src/core/visualizer.py`)**:
+- [x] **Narzędzie Wizualizacji i Katalog Before/After (`src/core/visualizer.py`, `src/core/generate_gallery.py`)**:
   - Generowanie podglądu Pixel Art (`_art.png`).
   - Generowanie diagramu do kolorowania z numerkami 1–5 i legendą palety (`_numbered.png`).
+  - Generowanie plakatów zestawieniowych 3 paneli (`comparison.png`).
+  - Interaktywny katalog webowy HTML w `outputs/before_after/index.html` oraz pod endpointem `/gallery`.
+  - Przejrzysta struktura katalogów `outputs/before_after/<slug>/` (before, after, diagram, composite, data.json).
 - [x] **Testy i Walidacja na Obrazach**:
   - Przetestowano na wszystkich 5 obrazach użytkownika z folderu `assets/` dla siatek $N=16, 32, 48$.
   - Pobrano 5 polskich arcydzieł z domeny publicznej (`data/heritage`): *Stańczyk*, *Babie lato*, *Bociany*, *Żydówka z pomarańczami*, *Szał uniesień*.

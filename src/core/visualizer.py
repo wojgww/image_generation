@@ -69,7 +69,15 @@ def render_color_by_number(
     grid_origin_x = margin
     grid_origin_y = margin
 
-    font = ImageFont.load_default()
+    font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+    try:
+        font = ImageFont.truetype(font_path, size=max(10, cell_size // 2))
+        font_legend = ImageFont.truetype(font_path, size=11)
+        font_swatch = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", size=12)
+    except Exception:
+        font = ImageFont.load_default()
+        font_legend = font
+        font_swatch = font
 
     for y in range(height):
         for x in range(width):
@@ -118,19 +126,19 @@ def render_color_by_number(
         l = 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]
         text_color = (255, 255, 255) if l < 130 else (0, 0, 0)
 
-        n_bbox = draw.textbbox((0, 0), num_str, font=font)
+        n_bbox = draw.textbbox((0, 0), num_str, font=font_swatch)
         nw = n_bbox[2] - n_bbox[0]
         nh = n_bbox[3] - n_bbox[1]
-        draw.text((sx1 + (swatch_width - nw) // 2, sy1 + (swatch_height - nh) // 2), num_str, fill=text_color, font=font)
+        draw.text((sx1 + (swatch_width - nw) // 2, sy1 + (swatch_height - nh) // 2), num_str, fill=text_color, font=font_swatch)
 
         # Draw label below swatch with clean truncation
         label = p.get("name", p["hex"])
         max_chars = max(8, swatch_width // 7)
         if len(label) > max_chars:
             label = label[:max_chars - 1] + "…"
-        lbl_bbox = draw.textbbox((0, 0), label, font=font)
+        lbl_bbox = draw.textbbox((0, 0), label, font=font_legend)
         lw = lbl_bbox[2] - lbl_bbox[0]
         lx = max(sx1, sx1 + (swatch_width - lw) // 2)
-        draw.text((lx, sy2 + 4), label, fill=(50, 50, 50), font=font)
+        draw.text((lx, sy2 + 4), label, fill=(50, 50, 50), font=font_legend)
 
     return canvas
