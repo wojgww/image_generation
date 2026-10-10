@@ -17,64 +17,78 @@
                │
                ▼
        [ FastAPI REST API ]
-   ├── GET /api/artworks (zwraca dzieła z siatką 1-5, paletą i ciekawostkami)
-   ├── GET /api/artworks/{id} (szczegóły konkretnego dzieła)
-   └── POST /api/convert (konwersja dowolnego obrazu do kolorowanki)
+   ├── GET /api/artworks (zwraca listę obiektów wg ścisłego schematu)
+   ├── GET /api/artworks/{id} (zwraca konkretny obiekt dzieła)
+   └── POST /api/convert (konwersja dowolnego obrazu do schematu)
                │
                ▼
 [ Aplikacja Mobilna TikTok-style ]
-   1. Wyświetla siatkę pikseli z numerami 1-5 i paletą na dole
+   1. Renderuje siatkę `grid.data` z paletą 1..5 na dole
    2. Użytkownik koloruje pola
-   3. Po ukończeniu: płynna animacja "odpikselowania" do oryginału HD
-   4. Prezentacja ciekawostki historycznej i kontekstu narodowego
+   3. Po ukończeniu: płynne odsłonięcie `original_image_url`
+   4. Prezentacja `cultural_data.trivia` oraz `cultural_data.historical_context`
 ```
 
 ---
 
-## 2. Format Danych Zwracany do Aplikacji Mobilnej (`GET /api/artworks`)
+## 2. Kanoniczny Schemat Wyjściowy Algorytmu i API (Definicja Obowiązująca)
+
+Każde przetworzone dzieło sztuki zwracane przez algorytm oraz API **musi** ściśle spełniać poniższy format JSON:
 
 ```json
-[
-  {
-    "id": "stanczyk-matejko",
-    "title": "Stańczyk",
-    "artist": "Jan Matejko",
-    "year": "1862",
-    "original_image_url": "https://.../stanczyk_hd.jpg",
-    "thumbnail_pixelated_url": "/static/previews/stanczyk_pixel.png",
-    "grid": {
-      "width": 32,
-      "height": 32,
-      "data": [
-        [1, 1, 2, 2, ...],
-        [1, 3, 4, 5, ...]
-      ]
-    },
-    "palette": [
-      { "id": 1, "hex": "#7A141A", "name": "Szkarłat królewski" },
-      { "id": 2, "hex": "#1F1A24", "name": "Cień nocy" },
-      { "id": 3, "hex": "#C69C55", "name": "Złoto wawelskie" },
-      { "id": 4, "hex": "#4B2E1E", "name": "Ciemny brąz" },
-      { "id": 5, "hex": "#E3D5C5", "name": "Kość słoniowa" }
-    ],
-    "cultural_data": {
-      "trivia": "Stańczyk na balu u królowej Bony jest jedyną osobą przeżywającą utratę Smoleńska, podczas gdy polski dwór beztrosko bawi się w sąsiedniej sali.",
-      "historical_context": "Dzieło symbolizuje patriotyczną troskę i odpowiedzialność za losy Rzeczypospolitej. Matejko nadał błaznowi własne rysy twarzy.",
-      "location": "Muzeum Narodowe w Warszawie"
-    }
+{
+  "id": "stanczyk-matejko",
+  "title": "Stańczyk",
+  "artist": "Jan Matejko",
+  "year": "1862",
+  "original_image_url": "https://.../stanczyk_hd.jpg",
+  "grid": {
+    "width": 32,
+    "height": 32,
+    "data": [
+      [1, 1, 2, 2],
+      [1, 3, 4, 5]
+    ]
+  },
+  "palette": [
+    { "id": 1, "hex": "#7A141A", "name": "Czerwień szkarłatna" },
+    { "id": 2, "hex": "#1F1A24", "name": "Czerń / Ciekawe tło" },
+    { "id": 3, "hex": "#C69C55", "name": "Złoto wawelskie" },
+    { "id": 4, "hex": "#4B2E1E", "name": "Ciemny brąz" },
+    { "id": 5, "hex": "#E3D5C5", "name": "Kremowy / Skóra" }
+  ],
+  "cultural_data": {
+    "trivia": "Stańczyk na balu u królowej Bony jako jedyny przeżywa utratę Smoleńska, podczas gdy polski dwór bawi się w najlepsze.",
+    "historical_context": "Symbol narodowej refleksji i odpowiedzialności politycznej. Matejko nadał błaznowi własną twarz."
   }
-]
+}
 ```
+
+### Specyfikacja Typów Pydantic / TypeScript:
+- **`id`** (`string`): Unikalny identyfikator dzieła w formacie slug (np. `stanczyk-matejko`).
+- **`title`** (`string`): Tytuł dzieła.
+- **`artist`** (`string`): Imię i nazwisko autora.
+- **`year`** (`string`): Rok powstania lub orientacyjny czas (np. `"1862"`).
+- **`original_image_url`** (`string`): Bezpośredni URL do oryginalnego pliku graficznego w jakości HD.
+- **`grid`** (`object`):
+  - **`width`** (`integer`): Liczba kolumn w siatce pikseli (np. `32`).
+  - **`height`** (`integer`): Liczba wierszy w siatce pikseli (np. `32`).
+  - **`data`** (`array of arrays of integers`): Macierz 2D o wymiarach `height x width`. Każda komórka przyjmuje wyłącznie wartość całkowitą ze zbioru `{1, 2, 3, 4, 5}`, odpowiadającą `id` z palety.
+- **`palette`** (`array of objects`, dokładnie 5 elementów):
+  - **`id`** (`integer`): Liczba od 1 do 5.
+  - **`hex`** (`string`): Kolor w formacie `#RRGGBB` (wielkie litery).
+  - **`name`** (`string`): Przyjazna polska nazwa barwy / kontekstowa nazwa pigmentu.
+- **`cultural_data`** (`object`):
+  - **`trivia`** (`string`): Ciekawostka historyczna lub anegdota o dziele.
+  - **`historical_context`** (`string`): Kontekst roli dzieła w polskiej kulturze i tożsamości.
 
 ---
 
 ## 3. Algorytm Przetwarzania Obrazu na Kolorowankę
 1. **Wczytanie i Skalowanie**:
-   - Obraz źródłowy jest skalowany z zachowaniem proporcji do wymiaru docelowego (np. $32 \times 32$ piksele) za pomocą filtru `PIL.Image.Resampling.BOX` lub `LANCZOS`, aby uśrednić lokalne barwy.
+   - Obraz źródłowy skalowany do zadanej siatki `width x height` (domyślnie $32 \times 32$) przy zachowaniu kadru.
 2. **Ekstrakcja Palety 5 Barw**:
-   - Piksele reprezentowane są jako wektory RGB (lub CIELAB dla lepszej percepcji ludzkiego oka).
-   - Uruchamiany jest algorytm K-Means ($K=5$, `n_init=10`).
-   - Centroidy stają się 5 kolorami palety, posortowanymi wg jasności lub częstotliwości występowania.
-3. **Mapowanie do Siatki**:
-   - Każdy piksel w siatce otrzymuje etykietę klastra $1, 2, 3, 4, 5$.
-   - Rezultatem jest prosta tablica 2D o rozmiarze $H \times W$ zawierająca liczby od 1 do 5.
+   - Algorytm K-Means ($K=5$) w przestrzeni barwnej RGB/CIELAB.
+   - Posortowanie klastrów i przypisanie im etykiet od 1 do 5.
+3. **Generowanie Siatki**:
+   - Każdy piksel zredukowany do indeksu najbliższego centroidu (1–5).

@@ -26,9 +26,11 @@ Tworzenie **interaktywnej kolorowanki pikselowej (color-by-number / pixel art)**
 
 ## 3. Kluczowe Zasady i Ograniczenia
 1. **Brak ciężkich modeli generatywnych**: Projekt opiera się na wydajnych algorytmach wizji komputerowej i kwantyzacji barw (szybkość < 50ms na konwersję).
-2. **Format danych przyjazny dla aplikacji mobilnej**:
-   - Paleta 5 kolorów w formacie HEX (`#RRGGBB`).
-   - Macierz 2D liczb całkowitych (1–5) reprezentująca siatkę kolorowanki.
+2. **Ścisły format danych wyjściowych (zgodny z ADR-003 i .docs/ENGINEERING_BRIEF.md)**:
+   - Obiekt z polami: `id`, `title`, `artist`, `year`, `original_image_url`, `grid`, `palette`, `cultural_data`.
+   - `grid`: `width`, `height`, `data` (macierz 2D liczb całkowitych wyłącznie 1–5).
+   - `palette`: dokładnie 5 elementów `{id: 1..5, hex: "#RRGGBB", name: string}`.
+   - `cultural_data`: `{trivia: string, historical_context: string}`.
 3. **Optymalizacja UX na hackathonie**:
    - Zero opóźnień inferencyjnych — natychmiastowe ładowanie danych w feedzie a la TikTok.
 4. **Zasady Git**: Commitujemy tylko kod źródłowy, schematy i konfigurację. Surowe duże pliki graficzne w `.gitignore` lub serwowane przez dedykowane URL.

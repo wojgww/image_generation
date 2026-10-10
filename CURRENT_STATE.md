@@ -9,6 +9,7 @@
 - [x] Utworzone i powiązane repozytorium GitHub: [wojgww/image_generation](https://github.com/wojgww/image_generation)
 - [x] Skonfigurowany `.gitignore` dla środowiska Python i plików pomocniczych.
 - [x] Spójna pamięć projektu uwzględniająca cel: silnik kolorowanki pikselowej (color-by-number z 5 kolorami) na bazie otwartych dzieł polskiej kultury.
+- [x] Zdefiniowano wiążący kanoniczny format wyjściowy algorytmu (ADR-003, `ENGINEERING_BRIEF.md`).
 - [x] Zarejestrowany projekt w centralnym indeksie `INDEX.md`.
 
 ---
